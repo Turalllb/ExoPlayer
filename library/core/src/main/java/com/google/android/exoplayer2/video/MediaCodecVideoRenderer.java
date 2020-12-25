@@ -84,7 +84,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private static final String KEY_CROP_TOP = "crop-top";
 
   // Long edge length in pixels for standard video formats, in decreasing in order.
-  private static final int[] STANDARD_LONG_EDGE_VIDEO_PX = new int[] {
+  private static final int[] STANDARD_LONG_EDGE_VIDEO_PX = new int[]{
       1920, 1600, 1440, 1280, 960, 854, 640, 540, 480};
 
   // Generally there is zero or one pending output stream offset. We track more offsets to allow for
@@ -96,16 +96,24 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    */
   private static final float INITIAL_FORMAT_MAX_INPUT_SIZE_SCALE_FACTOR = 1.5f;
 
-  /** Magic frame render timestamp that indicates the EOS in tunneling mode. */
+  /**
+   * Magic frame render timestamp that indicates the EOS in tunneling mode.
+   */
   private static final long TUNNELING_EOS_PRESENTATION_TIME_US = Long.MAX_VALUE;
 
-  /** A {@link DecoderException} with additional surface information. */
+  /**
+   * A {@link DecoderException} with additional surface information.
+   */
   public static final class VideoDecoderException extends DecoderException {
 
-    /** The {@link System#identityHashCode(Object)} of the surface when the exception occurred. */
+    /**
+     * The {@link System#identityHashCode(Object)} of the surface when the exception occurred.
+     */
     public final int surfaceIdentityHashCode;
 
-    /** Whether the surface was valid when the exception occurred. */
+    /**
+     * Whether the surface was valid when the exception occurred.
+     */
     public final boolean isSurfaceValid;
 
     public VideoDecoderException(
@@ -147,7 +155,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private int pendingRotationDegrees;
   private float pendingPixelWidthHeightRatio;
-  @Nullable private MediaFormat currentMediaFormat;
+  @Nullable
+  private MediaFormat currentMediaFormat;
   private int currentWidth;
   private int currentHeight;
   private int currentUnappliedRotationDegrees;
@@ -159,15 +168,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private boolean tunneling;
   private int tunnelingAudioSessionId;
-  /* package */ @Nullable OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
+  /* package */
+  @Nullable
+  OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
 
   private long lastInputTimeUs;
   private long outputStreamOffsetUs;
   private int pendingOutputStreamOffsetCount;
-  @Nullable private VideoFrameMetadataListener frameMetadataListener;
+  @Nullable
+  private VideoFrameMetadataListener frameMetadataListener;
 
   /**
-   * @param context A context.
+   * @param context            A context.
    * @param mediaCodecSelector A decoder selector.
    */
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector) {
@@ -175,10 +187,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
+   * @param context              A context.
+   * @param mediaCodecSelector   A decoder selector.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
-   *     can attempt to seamlessly join an ongoing playback.
+   *                             can attempt to seamlessly join an ongoing playback.
    */
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       long allowedJoiningTimeMs) {
@@ -192,15 +204,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
-   *     can attempt to seamlessly join an ongoing playback.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param context                  A context.
+   * @param mediaCodecSelector       A decoder selector.
+   * @param allowedJoiningTimeMs     The maximum duration in milliseconds for which this video
+   *                                 renderer can attempt to seamlessly join an ongoing playback.
+   * @param eventHandler             A handler to use when delivering events to {@code
+   *                                 eventListener}. May be null if delivery of events is not
+   *                                 required.
+   * @param eventListener            A listener of events. May be null if delivery of events is not
+   *                                 required.
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
+   *                                 invocations of {@link VideoRendererEventListener#onDroppedFrames(int,
+   *                                 long)}.
    */
   @SuppressWarnings("deprecation")
   public MediaCodecVideoRenderer(
@@ -222,25 +237,31 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
-   *     can attempt to seamlessly join an ongoing playback.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
+   * @param context                     A context.
+   * @param mediaCodecSelector          A decoder selector.
+   * @param allowedJoiningTimeMs        The maximum duration in milliseconds for which this video
+   *                                    renderer can attempt to seamlessly join an ongoing
+   *                                    playback.
+   * @param drmSessionManager           For use with encrypted content. May be null if support for
+   *                                    encrypted content is not required.
    * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
+   *                                    For example a media file may start with a short clear region
+   *                                    so as to allow playback to begin in parallel with key
+   *                                    acquisition. This parameter specifies whether the renderer
+   *                                    is permitted to play clear regions of encrypted media files
+   *                                    before {@code drmSessionManager} has obtained the keys
+   *                                    necessary to decrypt encrypted regions of the media.
+   * @param eventHandler                A handler to use when delivering events to {@code
+   *                                    eventListener}. May be null if delivery of events is not
+   *                                    required.
+   * @param eventListener               A listener of events. May be null if delivery of events is
+   *                                    not required.
+   * @param maxDroppedFramesToNotify    The maximum number of frames that can be dropped between
+   *                                    invocations of {@link VideoRendererEventListener#onDroppedFrames(int,
+   *                                    long)}.
    * @deprecated Use {@link #MediaCodecVideoRenderer(Context, MediaCodecSelector, long, boolean,
-   *     Handler, VideoRendererEventListener, int)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
+   * Handler, VideoRendererEventListener, int)} instead, and pass DRM-related parameters to the
+   * {@link MediaSource} factories.
    */
   @Deprecated
   @SuppressWarnings("deprecation")
@@ -266,18 +287,22 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
-   *     can attempt to seamlessly join an ongoing playback.
-   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
-   *     initialization fails. This may result in using a decoder that is slower/less efficient than
-   *     the primary decoder.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param context                  A context.
+   * @param mediaCodecSelector       A decoder selector.
+   * @param allowedJoiningTimeMs     The maximum duration in milliseconds for which this video
+   *                                 renderer can attempt to seamlessly join an ongoing playback.
+   * @param enableDecoderFallback    Whether to enable fallback to lower-priority decoders if
+   *                                 decoder initialization fails. This may result in using a
+   *                                 decoder that is slower/less efficient than the primary
+   *                                 decoder.
+   * @param eventHandler             A handler to use when delivering events to {@code
+   *                                 eventListener}. May be null if delivery of events is not
+   *                                 required.
+   * @param eventListener            A listener of events. May be null if delivery of events is not
+   *                                 required.
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
+   *                                 invocations of {@link VideoRendererEventListener#onDroppedFrames(int,
+   *                                 long)}.
    */
   @SuppressWarnings("deprecation")
   public MediaCodecVideoRenderer(
@@ -301,28 +326,35 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
-   *     can attempt to seamlessly join an ongoing playback.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
+   * @param context                     A context.
+   * @param mediaCodecSelector          A decoder selector.
+   * @param allowedJoiningTimeMs        The maximum duration in milliseconds for which this video
+   *                                    renderer can attempt to seamlessly join an ongoing
+   *                                    playback.
+   * @param drmSessionManager           For use with encrypted content. May be null if support for
+   *                                    encrypted content is not required.
    * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
-   *     initialization fails. This may result in using a decoder that is slower/less efficient than
-   *     the primary decoder.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
+   *                                    For example a media file may start with a short clear region
+   *                                    so as to allow playback to begin in parallel with key
+   *                                    acquisition. This parameter specifies whether the renderer
+   *                                    is permitted to play clear regions of encrypted media files
+   *                                    before {@code drmSessionManager} has obtained the keys
+   *                                    necessary to decrypt encrypted regions of the media.
+   * @param enableDecoderFallback       Whether to enable fallback to lower-priority decoders if
+   *                                    decoder initialization fails. This may result in using a
+   *                                    decoder that is slower/less efficient than the primary
+   *                                    decoder.
+   * @param eventHandler                A handler to use when delivering events to {@code
+   *                                    eventListener}. May be null if delivery of events is not
+   *                                    required.
+   * @param eventListener               A listener of events. May be null if delivery of events is
+   *                                    not required.
+   * @param maxDroppedFramesToNotify    The maximum number of frames that can be dropped between
+   *                                    invocations of {@link VideoRendererEventListener#onDroppedFrames(int,
+   *                                    long)}.
    * @deprecated Use {@link #MediaCodecVideoRenderer(Context, MediaCodecSelector, long, boolean,
-   *     Handler, VideoRendererEventListener, int)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
+   * Handler, VideoRendererEventListener, int)} instead, and pass DRM-related parameters to the
+   * {@link MediaSource} factories.
    */
   @Deprecated
   public MediaCodecVideoRenderer(
@@ -397,7 +429,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         drmInitData == null
             || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType)
             || (format.exoMediaCryptoType == null
-                && supportsFormatDrm(drmSessionManager, drmInitData));
+            && supportsFormatDrm(drmSessionManager, drmInitData));
     if (!supportsFormatDrm) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
     }
@@ -693,10 +725,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected @KeepCodecResult int canKeepCodec(
+  protected @KeepCodecResult
+  int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
     if (codecInfo.isSeamlessAdaptationSupported(
-            oldFormat, newFormat, /* isNewFormatComplete= */ true)
+        oldFormat, newFormat, /* isNewFormatComplete= */ true)
         && newFormat.width <= codecMaxValues.width
         && newFormat.height <= codecMaxValues.height
         && getMaxInputSize(codecInfo, newFormat) <= codecMaxValues.inputSize) {
@@ -792,14 +825,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     int width =
         hasCrop
             ? outputMediaFormat.getInteger(KEY_CROP_RIGHT)
-                - outputMediaFormat.getInteger(KEY_CROP_LEFT)
-                + 1
+            - outputMediaFormat.getInteger(KEY_CROP_LEFT)
+            + 1
             : outputMediaFormat.getInteger(MediaFormat.KEY_WIDTH);
     int height =
         hasCrop
             ? outputMediaFormat.getInteger(KEY_CROP_BOTTOM)
-                - outputMediaFormat.getInteger(KEY_CROP_TOP)
-                + 1
+            - outputMediaFormat.getInteger(KEY_CROP_TOP)
+            + 1
             : outputMediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
     processOutputFormat(codec, width, height);
   }
@@ -877,7 +910,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         joiningDeadlineMs == C.TIME_UNSET
             && positionUs >= outputStreamOffsetUs
             && (!renderedFirstFrame
-                || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
+            || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
     if (forceRenderOutputBuffer) {
       long releaseTimeNs = System.nanoTime();
       notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format, currentMediaFormat);
@@ -910,7 +943,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     boolean treatDroppedBuffersAsSkipped = joiningDeadlineMs != C.TIME_UNSET;
     if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs, isLastBuffer)
         && maybeDropBuffersToKeyframe(
-            codec, bufferIndex, presentationTimeUs, positionUs, treatDroppedBuffersAsSkipped)) {
+        codec, bufferIndex, presentationTimeUs, positionUs, treatDroppedBuffersAsSkipped)) {
       return false;
     } else if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs, isLastBuffer)) {
       if (treatDroppedBuffersAsSkipped) {
@@ -993,7 +1026,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return outputStreamOffsetUs;
   }
 
-  /** Called when a buffer was processed in tunneling mode. */
+  /**
+   * Called when a buffer was processed in tunneling mode.
+   */
   protected void onProcessedTunneledBuffer(long presentationTimeUs) {
     @Nullable Format format = updateOutputFormatForTime(presentationTimeUs);
     if (format != null) {
@@ -1005,7 +1040,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     onProcessedOutputBuffer(presentationTimeUs);
   }
 
-  /** Called when a output EOS was received in tunneling mode. */
+  /**
+   * Called when a output EOS was received in tunneling mode.
+   */
   private void onProcessedTunneledEndOfStream() {
     setPendingOutputEndOfStream();
   }
@@ -1044,11 +1081,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /**
    * Returns whether the buffer being processed should be dropped.
    *
-   * @param earlyUs The time until the buffer should be presented in microseconds. A negative value
-   *     indicates that the buffer is late.
+   * @param earlyUs           The time until the buffer should be presented in microseconds. A
+   *                          negative value indicates that the buffer is late.
    * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
-   *     measured at the start of the current iteration of the rendering loop.
-   * @param isLastBuffer Whether the buffer is the last buffer in the current stream.
+   *                          measured at the start of the current iteration of the rendering loop.
+   * @param isLastBuffer      Whether the buffer is the last buffer in the current stream.
    */
   protected boolean shouldDropOutputBuffer(
       long earlyUs, long elapsedRealtimeUs, boolean isLastBuffer) {
@@ -1059,11 +1096,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * Returns whether to drop all buffers from the buffer being processed to the keyframe at or after
    * the current playback position, if possible.
    *
-   * @param earlyUs The time until the current buffer should be presented in microseconds. A
-   *     negative value indicates that the buffer is late.
+   * @param earlyUs           The time until the current buffer should be presented in microseconds.
+   *                          A negative value indicates that the buffer is late.
    * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
-   *     measured at the start of the current iteration of the rendering loop.
-   * @param isLastBuffer Whether the buffer is the last buffer in the current stream.
+   *                          measured at the start of the current iteration of the rendering loop.
+   * @param isLastBuffer      Whether the buffer is the last buffer in the current stream.
    */
   protected boolean shouldDropBuffersToKeyframe(
       long earlyUs, long elapsedRealtimeUs, boolean isLastBuffer) {
@@ -1073,10 +1110,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /**
    * Returns whether to force rendering an output buffer.
    *
-   * @param earlyUs The time until the current buffer should be presented in microseconds. A
-   *     negative value indicates that the buffer is late.
+   * @param earlyUs                  The time until the current buffer should be presented in
+   *                                 microseconds. A negative value indicates that the buffer is
+   *                                 late.
    * @param elapsedSinceLastRenderUs The elapsed time since the last output buffer was rendered, in
-   *     microseconds.
+   *                                 microseconds.
    * @return Returns whether to force rendering an output buffer.
    */
   protected boolean shouldForceRenderOutputBuffer(long earlyUs, long elapsedSinceLastRenderUs) {
@@ -1087,8 +1125,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /**
    * Skips the output buffer with the specified index.
    *
-   * @param codec The codec that owns the output buffer.
-   * @param index The index of the output buffer to skip.
+   * @param codec              The codec that owns the output buffer.
+   * @param index              The index of the output buffer to skip.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    */
   protected void skipOutputBuffer(MediaCodec codec, int index, long presentationTimeUs) {
@@ -1101,8 +1139,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /**
    * Drops the output buffer with the specified index.
    *
-   * @param codec The codec that owns the output buffer.
-   * @param index The index of the output buffer to drop.
+   * @param codec              The codec that owns the output buffer.
+   * @param index              The index of the output buffer to drop.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    */
   protected void dropOutputBuffer(MediaCodec codec, int index, long presentationTimeUs) {
@@ -1117,12 +1155,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * position. If no such keyframe exists, as the playback position is inside the same group of
    * pictures as the buffer being processed, returns {@code false}. Returns {@code true} otherwise.
    *
-   * @param codec The codec that owns the output buffer.
-   * @param index The index of the output buffer to drop.
-   * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
-   * @param positionUs The current playback position, in microseconds.
+   * @param codec                        The codec that owns the output buffer.
+   * @param index                        The index of the output buffer to drop.
+   * @param presentationTimeUs           The presentation time of the output buffer, in
+   *                                     microseconds.
+   * @param positionUs                   The current playback position, in microseconds.
    * @param treatDroppedBuffersAsSkipped Whether dropped buffers should be treated as intentionally
-   *     skipped.
+   *                                     skipped.
    * @return Whether any buffers were dropped.
    * @throws ExoPlaybackException If an error occurs flushing the codec.
    */
@@ -1171,8 +1210,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * Renders the output buffer with the specified index. This method is only called if the platform
    * API version of the device is less than 21.
    *
-   * @param codec The codec that owns the output buffer.
-   * @param index The index of the output buffer to drop.
+   * @param codec              The codec that owns the output buffer.
+   * @param index              The index of the output buffer to drop.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    */
   protected void renderOutputBuffer(MediaCodec codec, int index, long presentationTimeUs) {
@@ -1190,10 +1229,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * Renders the output buffer with the specified index. This method is only called if the platform
    * API version of the device is 21 or later.
    *
-   * @param codec The codec that owns the output buffer.
-   * @param index The index of the output buffer to drop.
+   * @param codec              The codec that owns the output buffer.
+   * @param index              The index of the output buffer to drop.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
-   * @param releaseTimeNs The wallclock time at which the frame should be displayed, in nanoseconds.
+   * @param releaseTimeNs      The wallclock time at which the frame should be displayed, in
+   *                           nanoseconds.
    */
   @TargetApi(21)
   protected void renderOutputBufferV21(
@@ -1257,7 +1297,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private void maybeNotifyVideoSizeChanged() {
     if ((currentWidth != Format.NO_VALUE || currentHeight != Format.NO_VALUE)
-      && (reportedWidth != currentWidth || reportedHeight != currentHeight
+        && (reportedWidth != currentWidth || reportedHeight != currentHeight
         || reportedUnappliedRotationDegrees != currentUnappliedRotationDegrees
         || reportedPixelWidthHeightRatio != currentPixelWidthHeightRatio)) {
       eventDispatcher.videoSizeChanged(currentWidth, currentHeight, currentUnappliedRotationDegrees,
@@ -1317,15 +1357,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /**
    * Returns the framework {@link MediaFormat} that should be used to configure the decoder.
    *
-   * @param format The {@link Format} of media.
-   * @param codecMimeType The MIME type handled by the codec.
-   * @param codecMaxValues Codec max values that should be used when configuring the decoder.
-   * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
-   *     no codec operating rate should be set.
+   * @param format                             The {@link Format} of media.
+   * @param codecMimeType                      The MIME type handled by the codec.
+   * @param codecMaxValues                     Codec max values that should be used when configuring
+   *                                           the decoder.
+   * @param codecOperatingRate                 The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET}
+   *                                           if no codec operating rate should be set.
    * @param deviceNeedsNoPostProcessWorkaround Whether the device is known to do post processing by
-   *     default that isn't compatible with ExoPlayer.
-   * @param tunnelingAudioSessionId The audio session id to use for tunneling, or {@link
-   *     C#AUDIO_SESSION_ID_UNSET} if tunneling should not be enabled.
+   *                                           default that isn't compatible with ExoPlayer.
+   * @param tunnelingAudioSessionId            The audio session id to use for tunneling, or {@link
+   *                                           C#AUDIO_SESSION_ID_UNSET} if tunneling should not be
+   *                                           enabled.
    * @return The framework {@link MediaFormat} that should be used to configure the decoder.
    */
   @SuppressLint("InlinedApi")
@@ -1381,8 +1423,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * Returns {@link CodecMaxValues} suitable for configuring a codec for {@code format} in a way
    * that will allow possible adaptation to other compatible formats in {@code streamFormats}.
    *
-   * @param codecInfo Information about the {@link MediaCodec} being configured.
-   * @param format The {@link Format} for which the codec is being configured.
+   * @param codecInfo     Information about the {@link MediaCodec} being configured.
+   * @param format        The {@link Format} for which the codec is being configured.
    * @param streamFormats The possible stream formats.
    * @return Suitable {@link CodecMaxValues}.
    */
@@ -1448,7 +1490,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * aspect ratio, but whose sizes are unknown.
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
-   * @param format The {@link Format} for which the codec is being configured.
+   * @param format    The {@link Format} for which the codec is being configured.
    * @return The maximum video size to use, or null if the size of {@code format} should be used.
    */
   private static Point getCodecMaxSize(MediaCodecInfo codecInfo, Format format) {
@@ -1491,9 +1533,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * Returns a maximum input buffer size for a given {@link MediaCodec} and {@link Format}.
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
-   * @param format The format.
+   * @param format    The format.
    * @return A maximum input buffer size in bytes, or {@link Format#NO_VALUE} if a maximum could not
-   *     be determined.
+   * be determined.
    */
   private static int getMaxInputSize(MediaCodecInfo codecInfo, Format format) {
     if (format.maxInputSize != Format.NO_VALUE) {
@@ -1515,12 +1557,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /**
    * Returns a maximum input size for a given codec, MIME type, width and height.
    *
-   * @param codecInfo Information about the {@link MediaCodec} being configured.
+   * @param codecInfo      Information about the {@link MediaCodec} being configured.
    * @param sampleMimeType The format mime type.
-   * @param width The width in pixels.
-   * @param height The height in pixels.
+   * @param width          The width in pixels.
+   * @param height         The height in pixels.
    * @return A maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
-   *     determined.
+   * determined.
    */
   private static int getCodecMaxInputSize(
       MediaCodecInfo codecInfo, String sampleMimeType, int width, int height) {
@@ -1541,8 +1583,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       case MimeTypes.VIDEO_H264:
         if ("BRAVIA 4K 2015".equals(Util.MODEL) // Sony Bravia 4K
             || ("Amazon".equals(Util.MANUFACTURER)
-                && ("KFSOWI".equals(Util.MODEL) // Kindle Soho
-                    || ("AFTS".equals(Util.MODEL) && codecInfo.secure)))) { // Fire TV Gen 2
+            && ("KFSOWI".equals(Util.MODEL) // Kindle Soho
+            || ("AFTS".equals(Util.MODEL) && codecInfo.secure)))) { // Fire TV Gen 2
           // Use the default value for cases where platform limitations may prevent buffers of the
           // calculated maximum input size from being allocated.
           return Format.NO_VALUE;
@@ -1574,7 +1616,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * ExoPlayer.
    *
    * @return Whether the device is known to do post processing by default that isn't compatible with
-   *     ExoPlayer.
+   * ExoPlayer.
    */
   private static boolean deviceNeedsNoPostProcessWorkaround() {
     // Nvidia devices prior to M try to adjust the playback rate to better map the frame-rate of
@@ -1599,6 +1641,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *    different pixel formats. If we can find a way to query the Surface instances to determine
    *    whether this case applies, then we'll be able to provide a more targeted workaround.
    */
+
   /**
    * Returns whether the codec is known to implement {@link MediaCodec#setOutputSurface(Surface)}
    * incorrectly.
@@ -1607,7 +1650,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *
    * @param name The name of the codec.
    * @return True if the device is known to implement {@link MediaCodec#setOutputSurface(Surface)}
-   *     incorrectly.
+   * incorrectly.
    */
   protected boolean codecNeedsSetOutputSurfaceWorkaround(String name) {
     if (name.startsWith("OMX.google")) {
@@ -1621,6 +1664,22 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           // https://github.com/google/ExoPlayer/issues/5169,
           // https://github.com/google/ExoPlayer/issues/6899.
           deviceNeedsSetOutputSurfaceWorkaround = true;
+        } else if (Util.SDK_INT <= 28) {
+          // Workaround for MiTV devices which have been observed broken up to API 28.
+          // https://github.com/google/ExoPlayer/issues/5169,
+          // https://github.com/google/ExoPlayer/issues/6899.
+          // https://github.com/google/ExoPlayer/issues/8014.
+          switch (Util.DEVICE) {
+            case "dangal":
+            case "dangalUHD":
+            case "dangalFHD":
+            case "magnolia":
+            case "machuca":
+            case "oneday":
+              return true;
+            default:
+              break; // Do nothing.
+          }
         } else if (Util.SDK_INT <= 27 && "HWEML".equals(Util.DEVICE)) {
           // Workaround for Huawei P20:
           // https://github.com/google/ExoPlayer/issues/4468#issuecomment-459291645.
