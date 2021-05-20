@@ -1604,6 +1604,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         case "magnolia":
         case "machuca":
         case "oneday":
+        case "yu43cv9632":
           return true;
         default:
           break; // Do nothing.

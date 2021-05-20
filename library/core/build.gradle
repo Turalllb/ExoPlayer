@@ -13,6 +13,7 @@
 // limitations under the License.
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
+
 android {
     defaultConfig {
         // The following argument makes the Android Test Orchestrator run its
@@ -62,4 +63,14 @@ ext {
     releaseArtifact = 'exoplayer-core'
     releaseDescription = 'The ExoPlayer library core module.'
 }
-apply from: '../../publish.gradle'
+
+project.ext {
+    mavPublishToRemoteRepo = true
+    mavRemoteRepoUser = "admin"
+    mavRemoteRepoPassword = ""
+    mavRepoRemoteUrl = 'https://artifactory.dev.more.tv/artifactory/ad-sdk-android/'
+}
+
+apply from: 'https://raw.githubusercontent.com/sky-uk/gradle-maven-plugin/master/gradle-mavenizer.gradle'
+
+//apply from: '../../publish.gradle'

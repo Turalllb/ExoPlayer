@@ -14,6 +14,8 @@
 if (project.ext.has("exoplayerPublishEnabled")
         && project.ext.exoplayerPublishEnabled) {
     apply plugin: 'bintray-release'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven'
     publish {
         artifactId = releaseArtifact
         desc = releaseDescription

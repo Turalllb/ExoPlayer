@@ -11,10 +11,16 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply plugin: 'maven-publish'
+apply plugin: 'maven'
+
 buildscript {
     repositories {
         google()
         jcenter()
+        mavenCentral()
+        mavenLocal()
+        maven { url "https://jitpack.io" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.1'
@@ -26,6 +32,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        mavenLocal()
     }
     project.ext {
         exoplayerPublishEnabled = false
@@ -37,6 +44,8 @@ allprojects {
         buildDir = "${externalBuildDir}/${project.name}"
     }
     group = 'com.google.android.exoplayer'
+
 }
 
-apply from: 'javadoc_combined.gradle'
+
+//apply from: 'javadoc_combined.gradle'
